@@ -1,26 +1,22 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import random
 import os 
-import csv
-from tabulate import tabulate
 
-num_plots = 302
-# for test split
-test = int(num_plots * 0.2)
 
-# different types of plots
-plot_type = ['plot', 'scatter', 'bar', 'stem', 'stack_plot', 'stairs']
+num_plots = 2038    #number of plots to generate
+test = int(num_plots * 0.2) # for test split
+
+print(test)
+
+# types of plots
+plot_type = ['plot', 'scatter', 'bar', 'stem', 'stack_plot', 'stairs', 'pie']
 line_styles = ['-', '--', '-.', ':']
 marker_styles = ['o', 's', 'x', '^']
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 
-# rows for cvs file
-row_list = [["plot_name", "plot_type", "x", "y"]]
-
-
-
-# ---------------------------------
 directory = "non-aesthetic"
 
 if not os.path.exists(directory):
@@ -35,25 +31,22 @@ if not os.path.exists(test_dir):
 if not os.path.exists(train_dir):
     os.makedirs(train_dir)
 
-# ---------------------------------
-random.seed(42)
-np.random.seed(42)
 
 for i in range(num_plots):
+    
     type = random.choice(plot_type)
     color = random.choice(colors)
 
     if type == 'plot':
         x = np.linspace(0, np.random.randint(10, 50), np.random.randint(10, 50))
+        y1 = np.sin(np.random.randint(1, 10) * x)
+        y2 = np.random.randint(1, 100, len(x))
         line_style = random.choice(line_styles)
 
         if np.random.randint(1, 10) % 2 == 0: 
-            y = np.sin(np.random.randint(1, 10) * x)
-            plt.plot(x, y, line_style, color)
+            plt.plot(x, y1, line_style, color)
         else:
-            y = np.random.randint(1, 100, len(x))
-            plt.plot(x, y, line_style, color)
-        
+            plt.plot(x, y2, line_style, color)
         
     if type == 'scatter':
         x = np.linspace(0, np.random.randint(10, 100), np.random.randint(10, 100))
@@ -89,29 +82,17 @@ for i in range(num_plots):
         
 
     if type == 'stairs':
-        # y_range = np.random.randint(10, 50)
-        y_range = 5
-        y = np.random.rand(y_range)
-        line_width = np.random.randint(1, 4)
-        x = np.arange(0, len(y) + 1)
-        # print(x)
-        plt.stairs(y, linewidth=line_width)
-    
-    
+        y = np.random.rand(np.random.randint(10, 50))
+        plt.stairs(y, linewidth=np.random.randint(1, 4))
+
+    if type == 'pie':
+        sizes = np.random.randint(10, size=5)
+        plt.pie(sizes)
     # plt.savefig(f'plot_{i+1}.png')
     if i < test:
         new_dir = test_dir
     else:
         new_dir = train_dir
 
-    row_list.append([f'plot_{i+1}.png', type, x , y])
     plt.savefig(os.path.join(new_dir, f'plot_{i+1}.png'))
     plt.clf()
-
-# ---------------------------------
-with open('non_aesthetic_plots_data.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
-    for row in row_list:
-        writer.writerow(row)
-
-# print(tabulate(row_list, headers='firstrow', tablefmt='fancy_grid'))
